@@ -48,28 +48,43 @@ pipeline {
             }
         }
 
-        stage('Build & Package') {
+        stage('Build') {
             steps {
-                bat 'cd backend && mvn clean package'
+                bat 'cd backend && mvn clean compile'
             }
         }
 
-        stage('Stop Previous App on Port 9999') {
+        stage('Test') {
             steps {
-                bat '''
-                    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :9999') do (
-                        echo Found PID %%a on port 9999
-                        taskkill /PID %%a /F
-                    )
-                '''
+                bat 'cd backend && mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat 'cd backend && mvn package'
             }
         }
 
         stage('Deploy') {
             steps {
                 bat '''
-                    cd backend
-                    start /B java -jar target\\library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999
+                    cd backend\\target
+
+                    REM --- Tìm và dừng ứng dụng cũ đang chạy ở port 9999 ---
+                    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9999') do (
+                        echo Killing PID %%a using port 9999
+                        taskkill /F /PID %%a
+                    )
+
+                    REM --- Tìm file JAR và chạy ---
+                    for /f %%i in ('dir /b *.jar') do (
+                        echo Running new JAR: %%i
+                        start /B java -jar %%i --server.port=9999
+                        goto :end
+                    )
+
+                    :end
                 '''
             }
         }
