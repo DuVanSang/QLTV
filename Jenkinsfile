@@ -51,12 +51,15 @@ pipeline {
         stage('Build & Package') {
             steps {
                 bat '''
-                    REM Chỉ kill tiến trình chạy file backend .jar
-                    for /f "tokens=2" %%a in (
-                        'tasklist /FI "IMAGENAME eq java.exe" /v ^| findstr "library-management-backend"'
-                    ) do taskkill /PID %%a /F
-                    
-                    REM 🔧 Build lại
+                    REM Kill tiến trình theo PID cũ nếu tồn tại
+                    if exist backend\\target\\app.pid (
+                        set /p pid=<backend\\target\\app.pid
+                        echo Killing PID: %pid%
+                        taskkill /F /PID %pid%
+                        del backend\\target\\app.pid
+                    )
+
+                    REM Build lại
                     cd backend
                     mvn clean package -DskipTests
                 '''
@@ -73,13 +76,17 @@ pipeline {
             steps {
                 bat '''
                     cd backend\\target
-                    REM Dự phòng: Kill lại nếu app đang chạy (trong trường hợp build trước không kill được)
-                    for /f "tokens=2" %%a in (
-                        'tasklist /FI "IMAGENAME eq java.exe" /v ^| findstr "library-management-backend"'
-                    ) do taskkill /PID %%a /F
-                    
-                    REM Start app
-                    start /MIN java -jar library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999 >> app.log 2>&1
+
+                    REM Kill lại nếu app vẫn còn (dự phòng)
+                    if exist app.pid (
+                        set /p pid=<app.pid
+                        echo Killing existing app with PID: %pid%
+                        taskkill /F /PID %pid%
+                        del app.pid
+                    )
+
+                    REM Start app và lưu PID
+                    start /B cmd /c "java -jar library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999 > app.log 2>&1 & echo !^! > app.pid"
                 '''
             }
         }
