@@ -51,11 +51,7 @@ pipeline {
         stage('Stop Old App') {
             steps {
                 bat '''
-                    REM Tìm tiến trình đang chạy ứng dụng JAR và kill nó nếu có
-                    for /f "tokens=2 delims==;" %%i in ('wmic process where "CommandLine like '%%library-management-backend%%'" get ProcessId /format:value ^| find "="') do (
-                        echo Killing backend process PID=%%i
-                        taskkill /PID %%i /F
-                    )
+                    powershell -Command "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*library-management-backend*' } | ForEach-Object { Write-Host 'Killing PID:' $_.ProcessId; Stop-Process -Id $_.ProcessId -Force }"
                 '''
             }
         }
