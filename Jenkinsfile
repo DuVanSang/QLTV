@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+    tools {
+        maven 'Maven 3.9.6'
+        jdk 'JDK 17'
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/your-username/your-java-repo.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                bat 'mvn clean compile'
+            }
+        }
+
+        stage('Test') {
+            steps {
+                bat 'mvn test'
+            }
+        }
+
+        stage('Package') {
+            steps {
+                bat 'mvn package'
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Triển khai ứng dụng tại đây...'
+            }
+        }
+    }
+}
