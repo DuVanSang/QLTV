@@ -30,8 +30,8 @@ pipeline {
             steps {
                 bat '''
                     cd backend\\target
-                    taskkill /F /IM java.exe || echo Không có tiến trình java đang chạy
-                    start /B java -jar Lib-mng.jar
+                    taskkill /F /IM java.exe || echo No java process found
+                    start /B java -jar Lib-mng.jar --server.port=9999
                 '''
             }
         }
