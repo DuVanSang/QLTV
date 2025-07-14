@@ -50,7 +50,16 @@ pipeline {
 
         stage('Build') {
             steps {
-                bat 'cd backend && mvn clean compile'
+                bat '''
+                    cd backend
+                    echo Checking and stopping app running at port 9999...
+                    for /f "tokens=5" %%a in ('netstat -ano ^| findstr :9999') do (
+                        echo Killing PID %%a
+                        taskkill /F /PID %%a
+                    )
+                    echo Starting clean and compile...
+                    mvn clean compile
+                '''
             }
         }
 
