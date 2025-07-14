@@ -31,7 +31,7 @@
 //                 bat '''
 //                     cd backend\\target
 //                     taskkill /F /IM java.exe || echo No java process found
-//                     start /B java -jar Lib-mng.jar --server.port=9999
+//                     start /B java -jar library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999
 //                 '''
 //             }
 //         }
@@ -48,27 +48,26 @@ pipeline {
             }
         }
 
-        stage('Build & Package') {
+        stage('Build') {
             steps {
-                bat 'cd backend && mvn clean package -DskipTests'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                bat 'cd backend && mvn test'
+                bat 'mvn -f backend\\pom.xml clean package'
             }
         }
 
         stage('Deploy') {
             steps {
                 bat '''
-                    cd backend\\target
-                    for /f "tokens=2" %%a in ('tasklist /FI "IMAGENAME eq java.exe" /v ^| findstr "library-management-backend"') do taskkill /PID %%a /F
-                    start /B java -jar library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999 > app.log 2>&1
+                    REM Tìm PID tiến trình chạy jar bằng WMIC và kill nó nếu đang chạy
+                    for /f "tokens=2 delims==;" %%i in ('wmic process where "CommandLine like '%%library-management-backend%%'" get ProcessId /format:value ^| find "="') do (
+                        echo Killing existing backend process with PID=%%i
+                        taskkill /PID %%i /F
+                    )
+
+                    REM Chạy lại ứng dụng
+                    start /B java -jar backend\\target\\library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999
                 '''
             }
-        }   
+        }
     }
 }
 
