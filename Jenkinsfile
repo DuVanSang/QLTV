@@ -8,7 +8,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/your-username/your-java-repo.git'
+                git 'https://github.com/DuVanSang/QLTV1.git'
             }
         }
 
