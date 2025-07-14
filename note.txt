@@ -1,4 +1,4 @@
 hi
 Java Web
 Spring Boot
-maven2
+maven
