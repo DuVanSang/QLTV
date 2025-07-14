@@ -48,24 +48,28 @@ pipeline {
             }
         }
 
-        stage('Stop Old App') {
+        stage('Build & Package') {
             steps {
-                bat '''
-                    powershell -Command "Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -like '*library-management-backend*' } | ForEach-Object { Write-Host 'Killing PID:' $_.ProcessId; Stop-Process -Id $_.ProcessId -Force }"
-                '''
+                bat 'cd backend && mvn clean package'
             }
         }
 
-        stage('Build') {
+        stage('Stop Previous App on Port 9999') {
             steps {
-                bat 'mvn -f backend\\pom.xml clean package'
+                bat '''
+                    for /f "tokens=5" %%a in ('netstat -aon ^| findstr :9999') do (
+                        echo Found PID %%a on port 9999
+                        taskkill /PID %%a /F
+                    )
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
                 bat '''
-                    start /B java -jar backend\\target\\library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999
+                    cd backend
+                    start /B java -jar target\\library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999
                 '''
             }
         }
