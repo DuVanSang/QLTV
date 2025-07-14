@@ -51,7 +51,7 @@ pipeline {
         stage('Build & Package') {
             steps {
                 bat '''
-                    taskkill /F /IM java.exe || echo No java process running
+                    REM  Không dùng taskkill toàn bộ java.exe!
                     cd backend
                     mvn clean package -DskipTests
                 '''
@@ -68,10 +68,15 @@ pipeline {
             steps {
                 bat '''
                     cd backend\\target
-                    for /f "tokens=2" %%a in ('tasklist /FI "IMAGENAME eq java.exe" /v ^| findstr "library-management-backend"') do taskkill /PID %%a /F
+                    REM Chỉ kill tiến trình chạy backend app, không kill Jenkins
+                    for /f "tokens=2" %%a in (
+                        'tasklist /FI "IMAGENAME eq java.exe" /v ^| findstr "library-management-backend"'
+                    ) do taskkill /PID %%a /F
+                    
+                    REM Khởi động lại backend app (ẩn cửa sổ, ghi log)
                     start /MIN java -jar library-management-backend-0.0.1-SNAPSHOT.jar --server.port=9999 >> app.log 2>&1
                 '''
             }
-        }   
+        }
     }
 }
