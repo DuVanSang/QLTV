@@ -1,32 +1,28 @@
 pipeline {
     agent any
-    // tools {
-    //     maven 'Maven 3.9.10'
-    //     jdk 'JDK 21'
-    // }
 
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/DuVanSang/QLTV.git'
+                git 'https://github.com/DuVanSang/QLTV.git'
             }
         }
 
         stage('Build') {
             steps {
-                bat 'mvn clean compile'
+                bat 'cd backend && mvn clean compile'
             }
         }
 
         stage('Test') {
             steps {
-                bat 'mvn test'
+                bat 'cd backend && mvn test'
             }
         }
 
         stage('Package') {
             steps {
-                bat 'mvn package'
+                bat 'cd backend && mvn package'
             }
         }
 
