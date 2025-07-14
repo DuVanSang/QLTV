@@ -26,9 +26,13 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+       stage('Deploy') {
             steps {
-                echo 'Triển khai ứng dụng tại đây...'
+                bat '''
+                    cd backend\\target
+                    taskkill /F /IM java.exe || echo Không có tiến trình java đang chạy
+                    start /B java -jar Lib-mng.jar
+                '''
             }
         }
     }
