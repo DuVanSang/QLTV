@@ -10,11 +10,12 @@ pipeline {
 
         stage('Build') {
             steps {
+                echo 'Building the backend...'
                 bat 'cd backend && mvn clean compile'
             }
         }
 
-        // stage('Test') {
+        // stage('Test') { 
         //     steps {
         //         bat 'cd backend && mvn test'
         //     }
