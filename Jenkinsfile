@@ -8,13 +8,21 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        // stage('Build') {
+        //     steps {
+        //         echo 'Building the backend...'
+        //         bat 'cd backend && mvn clean compile'
+        //     }
+        // }
+
+        stage('Build Docker Image') {
             steps {
-                echo 'Building the backend...'
-                bat 'cd backend && mvn clean compile'
+                echo 'Building Docker image'
+                bat 'docker build -t QLTV .'
             }
         }
- 
+
+
         // stage('Test') { 
         //     steps {
         //         bat 'cd backend && mvn test'
