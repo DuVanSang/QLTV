@@ -14,7 +14,7 @@ pipeline {
                 bat 'cd backend && mvn clean compile'
             }
         }
-
+ 
         // stage('Test') { 
         //     steps {
         //         bat 'cd backend && mvn test'
