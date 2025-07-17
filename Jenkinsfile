@@ -24,7 +24,7 @@ pipeline {
     //         steps {
     //             bat 'cd backend && mvn package'
     //         }
-    //     }
+    //     } 
 
     //    stage('Deploy') {
     //         steps {
